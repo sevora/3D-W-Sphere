@@ -93,7 +93,7 @@ function start() {
 	// as you can see the sphere has two sides well as in, inside and outside
 	const material = new THREE.MeshStandardMaterial({
 		side: THREE.FrontSide,
-		displacementScale: 0.1,
+		displacementScale: 0.05,
 		transparent: true
 	});
 	
