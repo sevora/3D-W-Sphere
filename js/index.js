@@ -70,7 +70,18 @@ function start() {
 	const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
 	const renderer = new THREE.WebGLRenderer({ antialias: true });
 	
-	// fullscreen
+	// code for the orbit controls that makes it really easy to control camera by touch or mouse
+	const controls = new THREE.OrbitControls( camera, renderer.domElement);
+	
+	controls.autoRotate = true;
+	controls.autoRotateSpeed = 6;
+	controls.enablePan = false;
+	
+	// refers to the zoom distances of our camera controlled by the orbitcontrol
+	controls.minDistance = 10;
+	controls.maxDistance = 80;
+	
+	// fullscreen canvas
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	
 	// you need to add the canvas to the DOM for it to appear
@@ -98,35 +109,40 @@ function start() {
 	
 	scene.add(sphere);
 	scene.add(inner);
+	scene.add(camera);
 	
 	camera.position.z = 80;
 	
+	// whole chunk of code commented can be removed after review
 	// lighting code that I barely understand
 	// well just tweak it and stuff, honestly I don't know much about this
-	const spotLight = new THREE.SpotLight(0xffffff);
-	spotLight.position.set(0, 0, 200);
-	spotLight.castShadow = true;
+	/*const spotLight = new THREE.SpotLight(0xffffff);
+	
+	spotLight.position.set(0, 0, 1);
 	spotLight.shadow.mapSize.width = 1024;
 	spotLight.shadow.mapSize.height = 1024;
 	spotLight.shadow.camera.near = 500;
-	spotLight.shadow.camera.far = 4000;
-	spotLight.shadow.camera.fov = 45;
+	spotLight.shadow.camera.far = 5000;
+	spotLight.shadow.camera.fov = 10;
 	spotLight.intensity = 1.5;
-	scene.add(spotLight);
+	
+	camera.add(spotLight);
+	spotLight.target = camera;*/
+	
+	// ambient light lights everything up
+	// easy to use, easy to understand
+	const ambientLight = new THREE.AmbientLight(0x404040);
+	ambientLight.intensity = 5;
+	scene.add(ambientLight)
 	
 	// animation loop basically runs repeatedly to create every single frame
 	function animate() {
 		requestAnimationFrame(animate);
 		
-		// rotation code well rotates the thing automatically
-		sphere.rotation.x += 0.01;
-		sphere.rotation.y += 0.01;
-		inner.rotation.x += 0.01;
-		inner.rotation.y += 0.01;
-		
 		// when the w-value is too small we want the sphere to be visible
 		sphere.visible = -179 <= w && w <= 180;
-		//sphere.visible = false
+		
+		controls.update();
 		renderer.render(scene, camera);
 	}
 	
@@ -191,6 +207,10 @@ function start() {
 		scale = (-Math.pow(scale, 2)/7 + 15);
 		return Math.max(scale, 0.1);
 	}
+	
+	document.addEventListener("mousemove", function(event) {
+		console.log(event.movementX)
+	});
 	
 	updatePlane(0, originIndex, false);
 }
