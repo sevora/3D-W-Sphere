@@ -90,6 +90,7 @@ function start() {
 	// this is the creation of the sphere
 	const geometry = new THREE.SphereGeometry(1, 256, 128);
 	
+	// as you can see the sphere has two sides well as in, inside and outside
 	const material = new THREE.MeshStandardMaterial({
 		side: THREE.FrontSide,
 		transparent: true
@@ -113,22 +114,6 @@ function start() {
 	
 	camera.position.z = 80;
 	
-	// whole chunk of code commented can be removed after review
-	// lighting code that I barely understand
-	// well just tweak it and stuff, honestly I don't know much about this
-	/*const spotLight = new THREE.SpotLight(0xffffff);
-	
-	spotLight.position.set(0, 0, 1);
-	spotLight.shadow.mapSize.width = 1024;
-	spotLight.shadow.mapSize.height = 1024;
-	spotLight.shadow.camera.near = 500;
-	spotLight.shadow.camera.far = 5000;
-	spotLight.shadow.camera.fov = 10;
-	spotLight.intensity = 1.5;
-	
-	camera.add(spotLight);
-	spotLight.target = camera;*/
-	
 	// ambient light lights everything up
 	// easy to use, easy to understand
 	const ambientLight = new THREE.AmbientLight(0x404040);
@@ -139,7 +124,7 @@ function start() {
 	function animate() {
 		requestAnimationFrame(animate);
 		
-		// when the w-value is too small we want the sphere to be visible
+		// when the w-value is too small we want the sphere to be invisible
 		sphere.visible = -179 <= w && w <= 180;
 		
 		controls.update();
@@ -207,10 +192,6 @@ function start() {
 		scale = (-Math.pow(scale, 2)/7 + 15);
 		return Math.max(scale, 0.1);
 	}
-	
-	document.addEventListener("mousemove", function(event) {
-		console.log(event.movementX)
-	});
 	
 	updatePlane(0, originIndex, false);
 }
