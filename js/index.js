@@ -93,6 +93,7 @@ function start() {
 	// as you can see the sphere has two sides well as in, inside and outside
 	const material = new THREE.MeshStandardMaterial({
 		side: THREE.FrontSide,
+		displacementScale: 0.1,
 		transparent: true
 	});
 	
@@ -163,9 +164,8 @@ function start() {
 		sphere.material.displacementMap = null;
 		
 		// displacement map, that well changes the vertices actually
-		if (displacements[index]) { 
+		if (displacements[index]) {
 			sphere.material.displacementMap = displacements[index];
-			sphere.material.displacementScale = 0.2;
 		}
 		
 		// this is used to make sure that the material is updated
