@@ -11,7 +11,7 @@ let w = 0; // I don't really need this when I think about it but whatever
 let originIndex; // will have the index of the one with w is equal to 0
 
 // START Preloading of Textures 
-// this loads all the textures
+// this loads all the textures, lol
 const manager = new THREE.LoadingManager();
 const loader = new THREE.TextureLoader(manager);
 
@@ -187,9 +187,9 @@ function start() {
 	
 	// this computes the size of the sphere according to the current w-value
 	function computeSize(w) {
-		let scale = (w+1) / 180;
-		scale = (-(scale * scale)/7 + 10);
-		return Math.max(scale, 0.1)
+		let scale = (w + 1) / 180;
+		scale = (-Math.pow(scale, 2)/7 + 15);
+		return Math.max(scale, 0.1);
 	}
 	
 	updatePlane(0, originIndex, false);
