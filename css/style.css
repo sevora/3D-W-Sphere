@@ -30,3 +30,39 @@ body {
 #control-widget input {
 	width: 320px;
 }
+
+#region-widget {
+	width: 70%;
+	text-align: left;
+	
+	position: absolute;
+	top: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+#description-widget {
+	width: 70%;
+	text-align: left;
+	overflow-y: auto;
+	
+	position: absolute;
+	top: 50px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+@media(min-width: 600px) {
+	#region-widget {
+		text-align: center;
+	}
+	
+	#description-widget {
+		top: unset;
+		transform: unset;
+		
+		width: 50%;
+		bottom: 20px;
+		left: 20px;
+	}
+}

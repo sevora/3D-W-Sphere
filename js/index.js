@@ -35,7 +35,7 @@ manager.onLoad = function() {
 }
 
 // load all textures in the database
-DATABASE.forEach(function(entry, index) {
+PLANETS.forEach(function(entry, index) {
 	// the way I assign it looks stupid, but
 	// hey in javascript, it works
 	if (entry.w === 0) originIndex = index;
@@ -139,6 +139,8 @@ function start() {
 	const input = document.querySelector("#w-slider");
 	const wlevel = document.querySelector("#w-level");
 	const name = document.querySelector("#name");
+	const description = document.querySelector("#description-widget");
+	const region = document.querySelector("#region-widget");
 	
 	// slider event listener also changes the text of the UI
 	input.addEventListener('input', function() {
@@ -146,17 +148,38 @@ function start() {
 		wlevel.innerText = `w-level = ${w}`;
 		
 		// finds the corresponding entry and retextures the sphere accordingly
-		for (let index = DATABASE.length - 1; index >= 0; --index) {
-			let entry = DATABASE[index];
+		for (let index = PLANETS.length - 1; index >= 0; --index) {
+			let entry = PLANETS[index];
 			if (this.value >= entry.w) {
 				updatePlane(this.value, index, entry.inner);
-				name.innerText = "";
-				
-				if (entry.name) name.innerText = `, name: ${entry.name}`;
+				updateWidgets(entry);
 				break;
 			}
 		}
 	});
+	
+	// helper function that returns true if x is between start and end regardless of x's sign
+	function between(x, start, end) {
+		return ((x-start)*(x-end) <= 0);
+	}
+	
+	function updateWidgets(entry) {
+		name.innerText = "";
+		description.innerText = "";
+		region.innerText = "";
+		
+		if (entry.name) name.innerText = `, name: ${entry.name}`;
+		if (entry.description) description.innerText = `Description:\n${entry.description}`;
+		
+		for (let index = 0; index < REGIONS.length; ++index) {
+			let { start, end, name } = REGIONS[index]; REGIONS[index];
+			// kinda bad practice to use that global variable I think but whatever
+			if (between(w, start, end)) {
+				region.innerText = `Region: ${name}`;
+				break;
+			}
+		}
+	}
 	
 	// function that allows us to change the sphere textures in real time
 	function updatePlane(w, index, hasInner) {
@@ -194,4 +217,5 @@ function start() {
 	}
 	
 	updatePlane(0, originIndex, false);
+	updateWidgets(PLANETS[originIndex]);
 }
