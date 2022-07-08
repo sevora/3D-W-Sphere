@@ -15,11 +15,10 @@ let originIndex; // will have the index of the one with w is equal to 0
 const manager = new THREE.LoadingManager();
 const loader = new THREE.TextureLoader(manager);
 
-// in essence these are all textures
-const textures = []; // front side textures
-const displacements = []; // displacement maps
-const inners = []; // backside textures aka inside for hollow planets
+// should contain all textures inside, outside, and even displacement maps
+const resources = new Array(PLANETS.length);
 
+// well isn't this kinda obvious
 const loadingWidget = document.querySelector("#loading-widget");
 
 // this should run per item being loaded
@@ -29,7 +28,7 @@ manager.onProgress = function(url, loaded, total) {
 
 // would run when everything has loaded
 manager.onLoad = function() {
-	loadingWidget.innerText = `All ${textures.length} textures have been loaded.`;
+	loadingWidget.innerText = `All ${resources.length} textures have been loaded.`;
 	loadingWidget.remove();
 	start();
 }
@@ -39,17 +38,20 @@ PLANETS.forEach(function(entry, index) {
 	// the way I assign it looks stupid, but
 	// hey in javascript, it works
 	if (entry.w === 0) originIndex = index;
+	resources[index] = {};
 	
 	loader.load(entry.texture, function(texture) {
 		// this makes it so that the texture is pixelated instead of blurry when low quality
 		texture.minFilter = THREE.NearestFilter;
 		texture.magFilter = THREE.NearestFilter;
-		textures[index] = texture;
+		resources[index].outside = texture;
+		// textures[index] = texture;
 	});
 	
 	// a heinous crime, bad code but it works
 	if (entry.displacement) loader.load(entry.displacement, function(texture) {
-		displacements[index] = texture;
+		// displacements[index] = texture;
+		resources[index].displacement = texture;
 	});
 	
 	// yet another heinous crime, part two
@@ -57,7 +59,8 @@ PLANETS.forEach(function(entry, index) {
 		// same thing as the first loader code but this is for inner textures
 		texture.minFilter = THREE.NearestFilter;
 		texture.magFilter = THREE.NearestFilter;
-		inners[index] = texture;
+		// inners[index] = texture;
+		resources[index].inside = texture;
 	});
 	
 });
@@ -136,11 +139,12 @@ function start() {
 	// END Rendering of Spheee
 	
 	// START Sphere and W Controls
+	// forgive the inconsistensies in my naming, well change their names if you fancy
 	const input = document.querySelector("#w-slider");
 	const wlevel = document.querySelector("#w-level");
-	const name = document.querySelector("#name");
-	const description = document.querySelector("#description-widget");
-	const region = document.querySelector("#region-widget");
+	const nameDOM = document.querySelector("#name");
+	const descriptionDOM = document.querySelector("#description-widget");
+	const regionDOM = document.querySelector("#region-widget");
 	
 	// slider event listener also changes the text of the UI
 	input.addEventListener('input', function() {
@@ -151,8 +155,8 @@ function start() {
 		for (let index = PLANETS.length - 1; index >= 0; --index) {
 			let entry = PLANETS[index];
 			if (this.value >= entry.w) {
-				updatePlane(this.value, index, entry.inner);
-				updateWidgets(entry);
+				updatePlane(w, index);
+				updateWidgets(w, entry);
 				break;
 			}
 		}
@@ -164,53 +168,49 @@ function start() {
 	}
 	
 	// function to update the DOM elements with the right values
-	function updateWidgets(entry) {
+	function updateWidgets(w, entry) {
 		// obviously clear out their current values
-		name.innerText = "";
-		description.innerText = "";
-		region.innerText = "";
+		nameDOM.innerText = "";
+		descriptionDOM.innerText = "";
+		regionDOM.innerText = "";
 		
 		// optional fields
-		if (entry.name) name.innerText = `, name: ${entry.name}`;
-		if (entry.description) description.innerText = `Description:\n${entry.description}`;
+		if (entry.name) nameDOM.innerText = `, name: ${entry.name}`;
+		if (entry.description) descriptionDOM.innerText = `Description:\n${entry.description}`;
 		
 		// figures out the region to use
 		for (let index = 0; index < REGIONS.length; ++index) {
-			let { start, end, name } = REGIONS[index]; REGIONS[index];
+			let { start, end, name } = REGIONS[index];
 			// kinda bad practice to use that global variable I think but whatever
 			if (between(w, start, end)) {
-				region.innerText = `Region: ${name}`;
+				regionDOM.innerText = `Region: ${name}`;
 				break;
 			}
 		}
 	}
 	
 	// function that allows us to change the sphere textures in real time
-	function updatePlane(w, index, hasInner) {
-		sphere.material.map = textures[index];
+	function updatePlane(w, index) {
+		let { outside, displacement, inside } = resources[index];
+		sphere.material.map = outside
 		sphere.material.displacementMap = null;
 		
 		// displacement map, that well changes the vertices actually
-		if (displacements[index]) {
-			sphere.material.displacementMap = displacements[index];
-		}
+		if (displacement) sphere.material.displacementMap = displacement
 		
 		// this is used to make sure that the material is updated
 		sphere.material.needsUpdate = true;
 		
 		inner.visible = false; // by default inner shouldn't be visible
-		if (hasInner) updateInner(w, index);
+		if (inside) {
+			inner.material.map = inside;
+			inner.visible = true;
+			inner.material.needsUpdate = true;
+			inner.scale.setScalar(computeSize(w) * 0.99);
+		}
 		
 		// obviously changes the size of the sphere
 		sphere.scale.setScalar(computeSize(w) * 1.01);
-	}
-	
-	// this is used to update inner texture, only use if there is an inner texture
-	function updateInner(w, index) {
-		inner.material.map = inners[index];
-		inner.visible = true;
-		inner.material.needsUpdate = true;
-		inner.scale.setScalar(computeSize(w) * 0.99);
 	}
 	
 	// this computes the size of the sphere according to the current w-value
@@ -221,6 +221,6 @@ function start() {
 	}
 	
 	// well we need this to make sure stuff is right
-	updatePlane(0, originIndex, false);
-	updateWidgets(PLANETS[originIndex]);
+	updatePlane(0, originIndex);
+	updateWidgets(0, PLANETS[originIndex]);
 }
