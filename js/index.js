@@ -163,14 +163,18 @@ function start() {
 		return ((x-start)*(x-end) <= 0);
 	}
 	
+	// function to update the DOM elements with the right values
 	function updateWidgets(entry) {
+		// obviously clear out their current values
 		name.innerText = "";
 		description.innerText = "";
 		region.innerText = "";
 		
+		// optional fields
 		if (entry.name) name.innerText = `, name: ${entry.name}`;
 		if (entry.description) description.innerText = `Description:\n${entry.description}`;
 		
+		// figures out the region to use
 		for (let index = 0; index < REGIONS.length; ++index) {
 			let { start, end, name } = REGIONS[index]; REGIONS[index];
 			// kinda bad practice to use that global variable I think but whatever
@@ -216,6 +220,7 @@ function start() {
 		return Math.max(scale, 0.1);
 	}
 	
+	// well we need this to make sure stuff is right
 	updatePlane(0, originIndex, false);
 	updateWidgets(PLANETS[originIndex]);
 }
