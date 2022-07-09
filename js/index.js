@@ -121,7 +121,7 @@ function start() {
 	// ambient light lights everything up
 	// easy to use, easy to understand
 	const ambientLight = new THREE.AmbientLight(0x404040);
-	ambientLight.intensity = 5;
+	ambientLight.intensity = 4;
 	scene.add(ambientLight)
 	
 	// animation loop basically runs repeatedly to create every single frame
