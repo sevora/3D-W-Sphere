@@ -90,7 +90,7 @@ function start() {
 	document.body.appendChild(renderer.domElement);
 	
 	// this is the creation of the sphere
-	const planetGeometry = new THREE.SphereGeometry(1, 512, 256);
+	const planetGeometry = new THREE.SphereGeometry(1, 256, 128);
 	
 	// the whole sphere is made up of two different mesh
 	// one that should only render the outside and one that would render the inside
