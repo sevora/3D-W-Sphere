@@ -9,6 +9,7 @@
 
 let w = 0; // I don't really need this when I think about it but whatever
 let originIndex; // will have the index of the one with w is equal to 0
+let rotateInside;
 
 // START Preloading of Textures 
 // this loads all the textures, lol
@@ -45,12 +46,10 @@ PLANETS.forEach(function(entry, index) {
 		texture.minFilter = THREE.NearestFilter;
 		texture.magFilter = THREE.NearestFilter;
 		resources[index].outside = texture;
-		// textures[index] = texture;
 	});
 	
 	// a heinous crime, bad code but it works
 	if (entry.displacement) loader.load(entry.displacement, function(texture) {
-		// displacements[index] = texture;
 		resources[index].displacement = texture;
 	});
 	
@@ -59,7 +58,6 @@ PLANETS.forEach(function(entry, index) {
 		// same thing as the first loader code but this is for inner textures
 		texture.minFilter = THREE.NearestFilter;
 		texture.magFilter = THREE.NearestFilter;
-		// inners[index] = texture;
 		resources[index].inside = texture;
 	});
 	
@@ -91,62 +89,70 @@ function start() {
 	document.body.appendChild(renderer.domElement);
 	
 	// this is the creation of the sphere
-	const geometry = new THREE.SphereGeometry(1, 256, 128);
+	const planetGeometry = new THREE.SphereGeometry(1, 256, 128);
 	
 	// as you can see the sphere has two sides well as in, inside and outside
-	const material = new THREE.MeshStandardMaterial({
+	const outerMaterial = new THREE.MeshStandardMaterial({
 		side: THREE.FrontSide,
 		displacementScale: 0.05,
 		transparent: true
 	});
 	
-	const sphere = new THREE.Mesh(geometry, material);
+	const outerMesh = new THREE.Mesh(planetGeometry, outerMaterial);
 	
-	const inner = sphere.clone();
-	inner.material = new THREE.MeshStandardMaterial({
+	const innerMesh = outerMesh.clone();
+	innerMesh.material = new THREE.MeshStandardMaterial({
 		side: THREE.BackSide,
 		transparent: true
 	});
 	
 	// this was the fix, I wanna disappear now
-	sphere.renderOrder = 2;
-	inner.renderOrder = 1;
+	outerMesh.renderOrder = 2;
+	innerMesh.renderOrder = 1;
 	
-	scene.add(sphere);
-	scene.add(inner);
+	
+	const starGeometry = new THREE.BufferGeometry();
+	const starArray = [];
+	for(let index = 0; index < 7000; index++) {
+		let star = new THREE.Vector3(Math.random() * 600 - 300, Math.random() * 600 - 300, Math.random() * 600 - 300);
+		starArray.push(star);
+	}
+	starGeometry.setFromPoints(starArray);
+	
+	let starMaterial = new THREE.PointsMaterial({
+	  	color: 0xaaaaaa,
+	  	size: 0.7,
+	  	// map: sprite
+	});
+	
+	let starObject = new THREE.Points(starGeometry, starMaterial);
+	scene.add(starObject);
+
+	scene.add(outerMesh);
+	scene.add(innerMesh);
 	scene.add(camera);
 	
 	camera.position.z = 80;
-	
-	// lighting code that I barely understand
-	// well just tweak it and stuff, honestly I don't know much about this
-	const spotLight = new THREE.SpotLight(0xffffff);
-	
-	spotLight.position.set(0, 0, 1);
-	spotLight.shadow.mapSize.width = 1024;
-	spotLight.shadow.mapSize.height = 1024;
-	spotLight.shadow.camera.near = 500;
-	spotLight.shadow.camera.far = 5000;
-	spotLight.shadow.camera.fov = 10;
-	spotLight.intensity = 1.5;
-	
-	camera.add(spotLight);
-	spotLight.target = camera;
-	/*
+		
 	// ambient light lights everything up
 	// easy to use, easy to understand
 	const ambientLight = new THREE.AmbientLight(0x404040);
 	ambientLight.intensity = 4;
-	scene.add(ambientLight)*/
+	scene.add(ambientLight)
 	
 	
 	// animation loop basically runs repeatedly to create every single frame
 	function animate() {
 		requestAnimationFrame(animate);
 		
-		// when the w-value is too small we want the sphere to be invisible
-		sphere.visible = -179 <= w && w <= 180;
-		
+		// when the w-value is too small we want the whole sphere to be invisible
+		outerMesh.visible = -179 <= w && w <= 180;
+
+		if (rotateInside) {
+			innerMesh.rotation.x += 0.01;
+			innerMesh.rotation.y += 0.01;
+		}
+
 		controls.update();
 		renderer.render(scene, camera);
 	}
@@ -156,23 +162,25 @@ function start() {
 	
 	// START Sphere and W Controls
 	// forgive the inconsistensies in my naming, well change their names if you fancy
-	const input = document.querySelector("#w-slider");
-	const wlevel = document.querySelector("#w-level");
+	const inputDOM = document.querySelector("#w-slider");
+	const wLevelDOM = document.querySelector("#w-level");
 	const nameDOM = document.querySelector("#name");
 	const descriptionDOM = document.querySelector("#description-widget");
 	const regionDOM = document.querySelector("#region-widget");
-	
+	wLevelDOM.innerText = "w-level = 0";
+	inputDOM.removeAttribute("style");
+
 	// slider event listener also changes the text of the UI
-	input.addEventListener('input', function() {
+	inputDOM.addEventListener('input', function() {
 		w = this.value;
-		wlevel.innerText = `w-level = ${w}`;
+		wLevelDOM.innerText = `w-level = ${w}`;
 		
-		// finds the corresponding entry and retextures the sphere accordingly
+		// finds the corresponding entry and retextures the planet accordingly
 		for (let index = PLANETS.length - 1; index >= 0; --index) {
 			let entry = PLANETS[index];
 			if (this.value >= entry.w) {
-				updatePlane(w, index);
-				updateWidgets(w, entry);
+				updatePlane(entry, index);
+				updateWidgets(entry);
 				break;
 			}
 		}
@@ -184,7 +192,7 @@ function start() {
 	}
 	
 	// function to update the DOM elements with the right values
-	function updateWidgets(w, entry) {
+	function updateWidgets(entry) {
 		// obviously clear out their current values
 		nameDOM.innerText = "";
 		descriptionDOM.innerText = "";
@@ -197,7 +205,6 @@ function start() {
 		// figures out the region to use
 		for (let index = 0; index < REGIONS.length; ++index) {
 			let { start, end, name } = REGIONS[index];
-			// kinda bad practice to use that global variable I think but whatever
 			if (between(w, start, end)) {
 				regionDOM.innerText = `Region: ${name}`;
 				break;
@@ -205,31 +212,33 @@ function start() {
 		}
 	}
 	
-	// function that allows us to change the sphere textures in real time
-	function updatePlane(w, index) {
+	// function that allows us to change the planet's textures in real time
+	function updatePlane(entry, index) {
 		let { outside, displacement, inside } = resources[index];
-		sphere.material.map = outside
-		sphere.material.displacementMap = null;
+		outerMesh.material.map = outside;
+		outerMesh.material.displacementMap = null;
 		
 		// displacement map, that well changes the vertices actually
-		if (displacement) sphere.material.displacementMap = displacement
+		if (displacement) outerMesh.material.displacementMap = displacement
 		
 		// this is used to make sure that the material is updated
-		sphere.material.needsUpdate = true;
+		outerMesh.material.needsUpdate = true;
 		
-		inner.visible = false; // by default inner shouldn't be visible
+		innerMesh.visible = false; // by default innerMesh shouldn't be visible
 		if (inside) {
-			inner.material.map = inside;
-			inner.visible = true;
-			inner.material.needsUpdate = true;
-			inner.scale.setScalar(computeSize(w) * 0.99);
+			innerMesh.material.map = inside;
+			innerMesh.visible = true;
+			innerMesh.material.needsUpdate = true;
+			innerMesh.scale.setScalar(computeSize(w) * 0.99);
 		}
-		
-		// obviously changes the size of the sphere
-		sphere.scale.setScalar(computeSize(w) * 1.01);
+
+		rotateInside = entry.rotateInside;
+
+		// obviously changes the size of the planet's outerMesh mesh
+		outerMesh.scale.setScalar(computeSize(w) * 1.01);
 	}
 	
-	// this computes the size of the sphere according to the current w-value
+	// this computes the size of the planet's according to the current w-value
 	function computeSize(w) {
 		let scale = (w + 1) / 180;
 		scale = (-Math.pow(scale, 2)/7 + 15);

@@ -792,6 +792,7 @@ const PLANETS = [
         {
                 name: "Elysium",
                 w: 8,
+                rotateInside: true,
                 texture: "textures/elysium+8.png",
                 inner: "inners/elysium+8.png"
         },
@@ -1163,6 +1164,7 @@ const PLANETS = [
         {
                 name: "Selfsought",
                 w: 96,
+                rotateInside: true,	
                 texture: "textures/selfsought+96.png",
                 displacement: "displacements/selfsought+96.png",
                 inner: "inners/selfsought+96.png"
