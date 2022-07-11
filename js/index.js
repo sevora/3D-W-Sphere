@@ -71,6 +71,7 @@ function start() {
 	const scene = new THREE.Scene();
 	const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
 	const renderer = new THREE.WebGLRenderer({ antialias: true });
+	camera.position.z = 80;
 	
 	// code for the orbit controls that makes it really easy to control camera by touch or mouse
 	// now people can easily zoom, rotate, the view but disabled panning as it is unnecessary in this case
@@ -144,13 +145,14 @@ function start() {
 	scene.add(innerMesh);
 	scene.add(camera);
 	scene.add(ambientLight)
-	camera.position.z = 80;
 	
 	// animation loop basically runs repeatedly to create every single frame
+	// duh, that's so obvious why'd you have to comment it LOL
 	function animate() {
 		requestAnimationFrame(animate);
 		
-		// when the w-value is too small we want the whole sphere to be invisible
+		// when the w-value is too small or too large we want the whole sphere to be invisible
+		// hence something like this
 		outerMesh.visible = -179 <= w && w <= 180;
 
 		if (rotateInside) {
@@ -158,7 +160,7 @@ function start() {
 			innerMesh.rotation.y += 0.01;
 		}
 
-		controls.update();
+		controls.update(); // since auto rotate is on, this is necessary
 		renderer.render(scene, camera);
 	}
 	
@@ -249,7 +251,7 @@ function start() {
 		return Math.max(scale, 0.1);
 	}
 	
-	// well we need this to make sure stuff is right
+	// we need this to make sure stuff is right
 	updatePlane(PLANETS[originIndex], originIndex);
 	updateWidgets(PLANETS[originIndex]);
 }
