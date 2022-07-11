@@ -69,7 +69,7 @@ function start() {
 	// START Rendering of Sphere
 	const scene = new THREE.Scene();
 	const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-	const renderer = new THREE.WebGLRenderer({ antialias: true });
+	const renderer = new THREE.WebGLRenderer({ precision: "lowp" });
 	camera.position.z = 80;
 	
 	// code for the orbit controls that makes it really easy to control camera by touch or mouse
@@ -90,7 +90,7 @@ function start() {
 	document.body.appendChild(renderer.domElement);
 	
 	// this is the creation of the sphere
-	const planetGeometry = new THREE.SphereGeometry(1, 256, 128);
+	const planetGeometry = new THREE.SphereGeometry(1, 512, 256);
 	
 	// the whole sphere is made up of two different mesh
 	// one that should only render the outside and one that would render the inside
@@ -210,14 +210,14 @@ function start() {
 		regionDOM.innerText = "";
 		
 		// optional fields
-		if (entry.name) nameDOM.innerText = `, name: ${entry.name}`;
+		if (entry.name) nameDOM.innerText = `Name: ${entry.name}`;
 		if (entry.description) descriptionDOM.innerText = `Description:\n${entry.description}`;
 		
 		// figures out the region to use
 		for (let index = 0; index < REGIONS.length; ++index) {
 			let { start, end, name } = REGIONS[index];
 			if (between(w, start, end)) {
-				regionDOM.innerText = `Region: ${name}`;
+				regionDOM.innerText = `, Region: ${name}`;
 				break;
 			}
 		}

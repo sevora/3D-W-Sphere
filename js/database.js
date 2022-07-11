@@ -740,6 +740,7 @@ const PLANETS = [
         },
         {
                 name: "Eavesdrop",
+                description: "Eavesdrop, or the Phantom Earth, resembles Earth millions of years ago, when a supercontinent Pangaea split apart. Strangely, there are bridges connecting continents, black monuments scattered over the land, and not a single life. Everything is a fake. Trees, plants, and flowers are created of rocks, cloth, and plastic. Water is nothing but a thick glass.\n\nStrange dark monsters emerge from the monument every night. They go about looking for something. Some say you'll never see the light of day if you glance them in the eyes. Only looking down will give you a glimpse of their feet, which are shadows that reveal a pitch-black sky filled with stars",
                 w: -3,
                 texture: "textures/eavesdrop-3.png"
         },
