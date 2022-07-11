@@ -7,9 +7,9 @@
  * - Sphere and W Controls
  */
 
-let w = 0; // I don't really need this when I think about it but whatever
-let originIndex; // will have the index of the one with w is equal to 0
-let rotateInside;
+let w = 0; 	  // the w-level dictates the planet and size
+let originIndex;  // the origin index should have the index of the planet with the w-level of 0
+let rotateInside; // a boolean value that would dictate if the inside texture is rotating separately
 
 // START Preloading of Textures 
 // this loads all the textures, lol
@@ -41,6 +41,9 @@ PLANETS.forEach(function(entry, index) {
 	if (entry.w === 0) originIndex = index;
 	resources[index] = {};
 	
+	// this is the loader code, it is asynchronous so you know
+	// stuff won't be there until it's all done
+	// maybe we should add code in case an error happens, but nah
 	loader.load(entry.texture, function(texture) {
 		// this makes it so that the texture is pixelated instead of blurry when low quality
 		texture.minFilter = THREE.NearestFilter;
@@ -48,12 +51,10 @@ PLANETS.forEach(function(entry, index) {
 		resources[index].outside = texture;
 	});
 	
-	// a heinous crime, bad code but it works
 	if (entry.displacement) loader.load(entry.displacement, function(texture) {
 		resources[index].displacement = texture;
 	});
 	
-	// yet another heinous crime, part two
 	if (entry.inner) loader.load(entry.inner, function(texture) {
 		// same thing as the first loader code but this is for inner textures
 		texture.minFilter = THREE.NearestFilter;
@@ -72,6 +73,7 @@ function start() {
 	const renderer = new THREE.WebGLRenderer({ antialias: true });
 	
 	// code for the orbit controls that makes it really easy to control camera by touch or mouse
+	// now people can easily zoom, rotate, the view but disabled panning as it is unnecessary in this case
 	const controls = new THREE.OrbitControls( camera, renderer.domElement);
 	
 	controls.autoRotate = true;
@@ -82,7 +84,6 @@ function start() {
 	controls.minDistance = 10;
 	controls.maxDistance = 80;
 	
-	// fullscreen canvas
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	
 	// you need to add the canvas to the DOM for it to appear
@@ -91,7 +92,8 @@ function start() {
 	// this is the creation of the sphere
 	const planetGeometry = new THREE.SphereGeometry(1, 256, 128);
 	
-	// as you can see the sphere has two sides well as in, inside and outside
+	// the whole sphere is made up of two different mesh
+	// one that should only render the outside and one that would render the inside
 	const outerMaterial = new THREE.MeshStandardMaterial({
 		side: THREE.FrontSide,
 		displacementScale: 0.05,
@@ -107,6 +109,7 @@ function start() {
 	});
 	
 	// this was the fix, I wanna disappear now
+	// well to be clearer, there was an issue of z-fighting but it was fixed with this
 	outerMesh.renderOrder = 2;
 	innerMesh.renderOrder = 1;
 	
@@ -119,6 +122,7 @@ function start() {
 	}
 
 	// basically one geometry but made up of "points"
+	// this saves computing power even though there are a lot of stars
 	starGeometry.setFromPoints(starArray);
 	console.log(starGeometry.vertices);
 	
@@ -127,22 +131,20 @@ function start() {
 	  	size: 0.7,
 	});
 	
-	// this is just one object so the all stars would get affected when modified
+	// this is just one object meaning all stars would get affected when modified
 	let starObject = new THREE.Points(starGeometry, starMaterial);
-	scene.add(starObject);
-
-	scene.add(outerMesh);
-	scene.add(innerMesh);
-	scene.add(camera);
 	
-	camera.position.z = 80;
-		
 	// ambient light lights everything up
 	// easy to use, easy to understand
 	const ambientLight = new THREE.AmbientLight(0x404040);
 	ambientLight.intensity = 4;
-	scene.add(ambientLight)
 	
+	scene.add(starObject);
+	scene.add(outerMesh);
+	scene.add(innerMesh);
+	scene.add(camera);
+	scene.add(ambientLight)
+	camera.position.z = 80;
 	
 	// animation loop basically runs repeatedly to create every single frame
 	function animate() {
@@ -164,7 +166,6 @@ function start() {
 	// END Rendering of Spheee
 	
 	// START Sphere and W Controls
-	// forgive the inconsistensies in my naming, well change their names if you fancy
 	const inputDOM = document.querySelector("#w-slider");
 	const wLevelDOM = document.querySelector("#w-level");
 	const nameDOM = document.querySelector("#name");
