@@ -8,8 +8,8 @@
  */
 
 let w = 0; 	  // the w-level dictates the planet and size
-let originIndex;  // the origin index should have the index of the planet with the w-level of 0
 let rotateInside; // a boolean value that would dictate if the inside texture is rotating separately
+let urlHash = window.location.hash.substr(1); // gets the value of the hash at the url, e.g. https://site.com/#this, so value is "this"
 
 // START Preloading of Textures 
 // this loads all the textures, lol
@@ -34,11 +34,10 @@ manager.onLoad = function() {
 	start();
 }
 
-// load all textures in the database
+// load all textures in the database, resources is an array of objects
+// each object has a outer texture, displacement (optional), and inner texture (optional)
+// all of the values inside any of these keys are THREE.js objects
 PLANETS.forEach(function(entry, index) {
-	// the way I assign it looks stupid, but
-	// hey in javascript, it works
-	if (entry.w === 0) originIndex = index;
 	resources[index] = {};
 	
 	// this is the loader code, it is asynchronous so you know
@@ -177,20 +176,26 @@ function start() {
 	inputDOM.removeAttribute("style");
 
 	// slider event listener also changes the text of the UI
-	inputDOM.addEventListener('input', function() {
-		w = this.value;
+	inputDOM.addEventListener('input', sliderInputHandler);
+
+	// I separated the handler and stopped using "this" keyword as I basically want to trigger
+	// this function for the initialization which will allow us to set the input's value
+	// according to the url's hash and share links of specific planets in the site
+	function sliderInputHandler() {
+		w = inputDOM.value;
 		wLevelDOM.innerText = `w-level = ${w}`;
+		window.location.hash = `#${w}`; // well this always updates the hash
 		
 		// finds the corresponding entry and retextures the planet accordingly
 		for (let index = PLANETS.length - 1; index >= 0; --index) {
 			let entry = PLANETS[index];
-			if (this.value >= entry.w) {
+			if (inputDOM.value >= entry.w) {
 				updatePlane(entry, index);
 				updateWidgets(entry);
 				break;
 			}
 		}
-	});
+	};
 	
 	// helper function that returns true if x is between start and end regardless of x's sign
 	function between(x, start, end) {
@@ -251,7 +256,8 @@ function start() {
 		return Math.max(scale, 0.1);
 	}
 	
-	// we need this to make sure stuff is right
-	updatePlane(PLANETS[originIndex], originIndex);
-	updateWidgets(PLANETS[originIndex]);
+	// this is a simple or conditional, in case urlHash is falsy aka NaN in this case
+	// it would instead be set to the default value, 0
+	inputDOM.value = parseInt(urlHash) || 0;
+	sliderInputHandler();
 }
