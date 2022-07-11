@@ -110,21 +110,23 @@ function start() {
 	outerMesh.renderOrder = 2;
 	innerMesh.renderOrder = 1;
 	
-	
+	// this code part now adds stars
 	const starGeometry = new THREE.BufferGeometry();
 	const starArray = [];
 	for(let index = 0; index < 7000; index++) {
 		let star = new THREE.Vector3(Math.random() * 600 - 300, Math.random() * 600 - 300, Math.random() * 600 - 300);
 		starArray.push(star);
 	}
+
+	// basically one geometry but made up of "points"
 	starGeometry.setFromPoints(starArray);
 	
 	let starMaterial = new THREE.PointsMaterial({
 	  	color: 0xaaaaaa,
 	  	size: 0.7,
-	  	// map: sprite
 	});
 	
+	// this is just one object so the all stars would get affected when modified
 	let starObject = new THREE.Points(starGeometry, starMaterial);
 	scene.add(starObject);
 
