@@ -147,6 +147,12 @@ function start() {
 		// when the w-value is too small we want the sphere to be invisible
 		sphere.visible = -179 <= w && w <= 180;
 		
+		// elysium special rotation code
+		if (w == 8) {
+			inner.rotation.x += 0.01;
+			inner.rotation.y += 0.01;
+		}
+
 		controls.update();
 		renderer.render(scene, camera);
 	}
