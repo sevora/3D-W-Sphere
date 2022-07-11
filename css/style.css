@@ -15,6 +15,7 @@ body {
 #control-widget {
 	text-align: center;
 	position: absolute;
+	width: 40%;
 	bottom: 20px;
 	right: 20px;
 }
@@ -28,7 +29,7 @@ body {
 }
 
 #control-widget input {
-	width: 320px;
+	width: 100%;
 }
 
 #region-widget {
@@ -54,10 +55,12 @@ body {
 
 @media(min-width: 600px) {
 	#region-widget {
+		font-size: 24px;
 		text-align: center;
 	}
 	
 	#description-widget {
+		font-size: 20px;
 		top: unset;
 		transform: unset;
 		

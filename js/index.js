@@ -118,11 +118,27 @@ function start() {
 	
 	camera.position.z = 80;
 	
+	// lighting code that I barely understand
+	// well just tweak it and stuff, honestly I don't know much about this
+	const spotLight = new THREE.SpotLight(0xffffff);
+	
+	spotLight.position.set(0, 0, 1);
+	spotLight.shadow.mapSize.width = 1024;
+	spotLight.shadow.mapSize.height = 1024;
+	spotLight.shadow.camera.near = 500;
+	spotLight.shadow.camera.far = 5000;
+	spotLight.shadow.camera.fov = 10;
+	spotLight.intensity = 1.5;
+	
+	camera.add(spotLight);
+	spotLight.target = camera;
+	/*
 	// ambient light lights everything up
 	// easy to use, easy to understand
 	const ambientLight = new THREE.AmbientLight(0x404040);
 	ambientLight.intensity = 4;
-	scene.add(ambientLight)
+	scene.add(ambientLight)*/
+	
 	
 	// animation loop basically runs repeatedly to create every single frame
 	function animate() {
