@@ -120,6 +120,7 @@ function start() {
 
 	// basically one geometry but made up of "points"
 	starGeometry.setFromPoints(starArray);
+	console.log(starGeometry.vertices);
 	
 	let starMaterial = new THREE.PointsMaterial({
 	  	color: 0xaaaaaa,
@@ -248,6 +249,6 @@ function start() {
 	}
 	
 	// well we need this to make sure stuff is right
-	updatePlane(0, originIndex);
-	updateWidgets(0, PLANETS[originIndex]);
+	updatePlane(PLANETS[originIndex], originIndex);
+	updateWidgets(PLANETS[originIndex]);
 }
