@@ -28,15 +28,17 @@ For the `PLANETS` variable it should look like this:
 ```js
 const PLANETS = [
         {
-            name: "Planet A",                    // (optional field) the name of planet at given w
-            description: "Lorem Ipsum",          // (optional field) the description of planet at given w
-            w: 13,                               // the w value at which the planet should appear
-            texture: "path/to/texture.png",      // the path to the texture
-            displacement: "path/to/texture.png", // (optional field) path to displacement map
-            inner: "path/to/texture.png,         // (optional field) path to texture for inside
-            rotateInside: true                   // (optional field) inside texture rotates independently if truthy
+            name: "Planet A",                     // (optional field) the name of planet at given w
+            description: "Lorem Ipsum",           // (optional field) the description of planet at given w
+            w: 13,                                // the w value at which the planet should appear
+            texture: "path/to/texture.png",       // the path to the texture
+            displacement: "path/to/texture.png",  // (optional field) path to displacement map
+            inner: "path/to/texture.png",         // (optional field) path to texture for inside
+            rotateInside: true                    // (optional field) inside texture rotates independently if truthy
         }
+        // You may add more entries as you wish separated by a comma
 ]
 ```
 
 Since it can be a hassle to manually write all the entries for the planets in the `PLANETS` variable, a python script was written in order to automate such process. Simply follow the rules set on its section and it can be utilized.
+The current version only supports 360 individual planets but that could easily be extended by making the input slider code to have a dynamic max length, min length or you can simply make its range larger. 
